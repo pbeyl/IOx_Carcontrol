@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link href="static/main.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="static/main.js"></script>
+  </head>
+  <body>
+  <div id="overlay">
+  
+  <div id="header">
+    <div id="header_content">
+        <img src="static/Cisco_Logo.png" id="logo">
+        <div id="heading">
+            Cisco Car Controller
+        </div>
+    </div>
+  </div>
+  
+  <div id="main_content">
+  
+  <div id="webcam_container" tabindex="0"">
+              <!-- Embed MJPEG stream
+          <img src="http://192.168.1.64/Streaming/channels/2/httppreview" style="width:100%"> -->
+          
+          <!-- Embed rtsp using quicktime plugin
+          <embed autoplay="true" controller="false" type="video/quicktime"
+src="rtsp://192.168.1.64:554/Streaming/Channels/1/?transportmode=unicast"> -->
+          
+          
+          <!-- Embed jpg image using javascript refresh
+          <img src="http://admin:pass4admin@192.168.1.64/Streaming/Channels/2/picture?t=1" style="width:100%" onload='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()},300)' onerror='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()}, 300)' alt='Cisco Car Cam' />
+          -->
+          
+        <img src="http://212.170.22.153:8080/jpg/image.jpg?time=1468170130927&amp;dummy=image.jpg" id="webcam_image">        
+        
+        <div class="keycontrol_overlay hidden">
+        
+                <div class="keycontrol_overlay_column">
+                    <kbd>→</kbd> / <kbd>←</kbd>: left / right<br>
+                    <kbd>↑</kbd> / <kbd>↓</kbd>: forward / backward
+                </div>
+        </div>
+        <!-- Creating press buttons on the webpage-->
+          <div class="col-md-8 overlay-sm">
+             <p>                       
+              <input id="bleft" class="button custom lft" type="button" value="Steer Left" " />
+              <input id="bright" class="button custom rgt" type="button" value="Steer Right" " />
+                                             
+              
+            </p>
+          </div>
+          
+          <div class="col-md-2 overlay-bg pull-right">
+           <p>              
+              <input id="bforward" class="button custom fwd" type="button" value="Accelerate" " />
+            <br>          
+              <input id="bback" class="button custom bck" type="button" value="Reverse" " />
+            </p>
+          </div>
+
+    </div>    
+        
+    <div>
+    <small class="muted">Hint: Control the vehicle with your keyboard arrows</small>
+    
+  <br>
+  
+  <div class="console_output">
+  <p><b>Serial Console Monitor: (click to unhide)</b></p>
+      <div id="received"> <!-- we will hide this until clicked-->
+      </div>
+      <div> <button id="clear">Clear</button> </div>
+  </div>
+    </div>
+  </div>
+<!--  <p>Send data to serial port</p>
+  <form id="sent">
+  	<input type="text" id="cmd_value">
+  	<button id="cmd_send">Send</button>
+  </form> -->
+
+        <div id="footer">
+            <hr>    
+                <small><center>Version 1.0. ©2016 Cisco and/or its affiliates. All rights reserved. Cisco Confidential.
+            </center></small>
+            
+        </div>
+        
+    </div>  
+          
+  </body>
+</html>

@@ -32,8 +32,15 @@ src="rtsp://192.168.1.64:554/Streaming/Channels/1/?transportmode=unicast"> -->
           <img src="http://admin:pass4admin@192.168.1.64/Streaming/Channels/2/picture?t=1" style="width:100%" onload='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()},300)' onerror='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()}, 300)' alt='Cisco Car Cam' />
           -->
           
-        <img src="http://212.170.22.153:8080/jpg/image.jpg?time=1468170130927&amp;dummy=image.jpg" id="webcam_image">        
-        
+        <!-- <img src="http://212.170.22.153:8080/jpg/image.jpg?time=1468170130927&amp;dummy=image.jpg" id="webcam_image">        
+       -->
+
+<!--
+<img src="https://192.168.0.100/StreamingSetting?action=getPicture&userName=admin&password=Trusts3c!&t=1" style="width:100%" onload='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()},200)' onerror='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()}, 200)' alt='Cisco Car Cam' />
+-->
+
+	<EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="768px" height="432px" target="rtsp://admin:Trusts3c!@192.168.0.100:554/livestream1"></EMBED>
+	
         <div class="keycontrol_overlay hidden">
         
                 <div class="keycontrol_overlay_column">

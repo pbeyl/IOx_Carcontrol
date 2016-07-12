@@ -4,8 +4,8 @@ info:
   name: CarControl
   description: "Control Cisco Car through Web interface"
   version: "1.0"
-  author-link: "http://www.cisco.com"
-  author-name: "Cisco Systems"
+  author-link: "www.cisco.com"
+  author-name: "Paul Beyleveld"
 
 app:
   # Indicate app type (vm, paas, lxc etc.,)

@@ -1,6 +1,6 @@
 {
     "resources": {
         "network": [{"interface-name": "eth0", "network-name": "iox-bridge0"}],
-        "devices": [{"type": "serial", "label": "HOST_DEV1", "device-id": "/dev/ttyS1"}]
+        "devices": [{"type": "serial", "label": "HOST_DEV1", "device-id": "/dev/ttyS1"}, {"type": "serial", "label": "HOST_DEV2", "device-id": "/dev/ttyS2"}]
     }
 }

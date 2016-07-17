@@ -12,7 +12,7 @@ app:
   type: paas
 
   resources:
-    profile: c1.small
+    profile: c1.medium
 
     network:
       -
@@ -23,7 +23,11 @@ app:
       -
         type: serial
         label: HOST_DEV1
-        usage: Arduino Carcontrol Interface
+        usage: Serial1 Carcontrol Interface
+      -
+        type: serial
+        label: HOST_DEV2
+        usage: Serial2 Carcontrol Interface
 
   # Specify runtime and startup
   startup:

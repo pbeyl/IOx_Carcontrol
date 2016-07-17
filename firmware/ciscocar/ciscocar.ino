@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "SoftwareSerial.h"
 //#include <WString.h>
 
 #define maxLength 6
@@ -19,32 +20,37 @@ unsigned int def_delay = 300;
 
 uint8_t i = 0;
 
+SoftwareSerial softSerial(12, 13); // RX, TX using software serial on pins 10, 11
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  softSerial.begin(115200);
 
   // put your setup code here, to run once:
 
   pinMode(9, OUTPUT); //Back
   pinMode(10, OUTPUT); //Accellerate
   pinMode(11, OUTPUT); //Right
-  pinMode(12, OUTPUT); //Left
+  pinMode(8, OUTPUT); //Left
 
   digitalWrite(9, LOW);
   digitalWrite(10, LOW);
   digitalWrite(11, LOW);
-  digitalWrite(12, LOW);
+  digitalWrite(8, LOW);
 
   pinMode(2, OUTPUT); //Power the TTL to RS232 module
   pinMode(3, OUTPUT);
-  digitalWrite(2, LOW);
-  digitalWrite(3, HIGH);
+  digitalWrite(2, HIGH);
+  digitalWrite(3, LOW);
+
+  Serial.println(F("Cisco Car READY"));
+  softSerial.println(F("Cisco Car READY"));
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(Serial.available() > 0) {
+  if(softSerial.available() > 0) {
     getIncomingChars();
   }
 
@@ -55,12 +61,12 @@ void loop() {
     switch (currCommand) {
       case 'a':
         digitalWrite(11, LOW);    //ensure we do not get stuck in a left or right state
-        digitalWrite(12, LOW);
+        digitalWrite(8, LOW);
         digitalWrite(10, LOW);    //stop accelerating after 500 miliseconds if no longer pressing button
         break;
       case 'b':
         digitalWrite(11, LOW);    //ensure we do not get stuck in a left or right state
-        digitalWrite(12, LOW);
+        digitalWrite(8, LOW);
         digitalWrite(9, LOW);     //stop reversing after 500 miliseconds if no longer pressing button
         break;
 /*      case 'r':
@@ -71,19 +77,26 @@ void loop() {
       case 'l':
         digitalWrite(9, LOW);     //ensure we do not get stuck in a forward or back state
         digitalWrite(10, LOW);
-        digitalWrite(12, LOW);    //stop turning left
+        digitalWrite(8, LOW);    //stop turning left
         break;     */
       default:
         digitalWrite(9, LOW);     //ensure we do not get stuck in a forward or back state
         digitalWrite(10, LOW);      
     } 
-    
+
   }
   
   if ((millis() - rltimer) > def_delay) {
         digitalWrite(11, LOW);    //stop turning right
-        digitalWrite(12, LOW);    //stop turning left      
+        digitalWrite(8, LOW);    //stop turning left      
   }
+
+/*
+  if ((millis() % 500) == 1) {
+        Serial.print(".");
+        softSerial.print(".");     
+  }
+*/
   
   if (commandComplete == true) {
     processCommand();
@@ -91,7 +104,9 @@ void loop() {
 }
 
 void getIncomingChars() {
-  char inChar = Serial.read();
+  char inChar = softSerial.read();
+  //Serial.print(inChar);
+  
   if(inChar == 59 || inChar == 10 || inChar == 13){ //Read until terminated by ;
     commandComplete = true;
   } else {
@@ -100,19 +115,20 @@ void getIncomingChars() {
 }
 
 void processCommand(){
-  
-  /*
-   * Serial.print(command[0]);
-    Serial.print(command[1]);
-    Serial.print(command[2]);
-    Serial.println(command[3]);
-*/
+
+    /*  
+    softSerial.print(command[0]);
+    softSerial.print(command[1]);
+    softSerial.print(command[2]);
+    softSerial.println(command[3]);
+    */
   
   if(command[0] == 'F' || command[0] == 'f'){ // FWD
     //pinModeFunc();
     digitalWrite(11, LOW);
-    digitalWrite(12, LOW);
+    digitalWrite(8, LOW);
     Serial.println("FWD");
+    softSerial.println("FWD");
   }
 
   if(command[0] == 'B' || command[0] == 'b'){ // BCK
@@ -123,6 +139,7 @@ void processCommand(){
     digitalWrite(9, HIGH);
     currCommand = 'b';
     Serial.println("BACK");
+    softSerial.println("BACK");
   }
 
   if(command[0] == 'A' || command[0] == 'a'){ // Accel
@@ -132,7 +149,8 @@ void processCommand(){
     digitalWrite(9, LOW); //first set backward relay low
     digitalWrite(10, HIGH);
     currCommand = 'a';
-    Serial.println("Accel");
+    Serial.println("FWD");
+    softSerial.println("FWD");
   }
 
   if(command[0] == 'S' || command[0] == 's'){ // Switch to original control
@@ -147,10 +165,11 @@ void processCommand(){
     if((millis() - rltimer) > def_delay) {
       rltimer = millis();
       
-      digitalWrite(12, LOW); //first set left relay low
+      digitalWrite(8, LOW); //first set left relay low
       digitalWrite(11, HIGH);
       currCommand = 'r';
       Serial.println("RIGHT");
+      softSerial.println("RIGHT");
     }
   }
 
@@ -160,9 +179,10 @@ void processCommand(){
       rltimer = millis();
 
       digitalWrite(11, LOW); //first set right relay low
-      digitalWrite(12, HIGH);
+      digitalWrite(8, HIGH);
       currCommand = 'l';
       Serial.println("LEFT");
+      softSerial.println("LEFT");
     }    
   }
 

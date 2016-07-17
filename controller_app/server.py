@@ -10,6 +10,7 @@ import time
 import multiprocessing
 import serialworker
 import json
+import signal
  
 define("port", default=8080, help="run on the given port", type=int)
 root = os.getenv('CAF_APP_PATH')
@@ -19,6 +20,16 @@ clients = []
 input_queue = multiprocessing.Queue()
 output_queue = multiprocessing.Queue()
 
+def _sleep_handler(signum, frame):
+    print "SIGINT Received. Stopping CarControl"
+    raise KeyboardInterrupt
+
+def _stop_handler(signum, frame):
+    print "SIGTERM Received. Stopping CarControl"
+    raise KeyboardInterrupt
+
+signal.signal(signal.SIGTERM, _stop_handler)
+signal.signal(signal.SIGINT, _sleep_handler)
 
  
 class IndexHandler(tornado.web.RequestHandler):
@@ -56,25 +67,30 @@ def checkQueue():
 
 
 if __name__ == '__main__':
-	## start the serial worker in background (as a deamon)
-	sp = serialworker.SerialProcess(input_queue, output_queue)
-	sp.daemon = True
-	sp.start()
-	tornado.options.parse_command_line()
-	app = tornado.web.Application(
-	    handlers=[
-	        (r"/", IndexHandler),
-	        (r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=root)),
-	        (r"/ws", WebSocketHandler)
-	    ]
-	)
-	httpServer = tornado.httpserver.HTTPServer(app)
-	httpServer.listen(options.port)
-	print "Listening on port:", options.port
+    try: 
+        ## start the serial worker in background (as a deamon)
+        sp = serialworker.SerialProcess(input_queue, output_queue)
+        sp.daemon = True
+        sp.start()
+        
+        tornado.options.parse_command_line()
+        app = tornado.web.Application(
+            handlers=[
+                (r"/", IndexHandler),
+                (r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=root)),
+                (r"/ws", WebSocketHandler)
+            ]
+        )
+        httpServer = tornado.httpserver.HTTPServer(app)
+        httpServer.listen(options.port)
+        print "Listening on port:", options.port
 
-	mainLoop = tornado.ioloop.IOLoop.instance()
-	## adjust the scheduler_interval according to the frames sent by the serial port
-	scheduler_interval = 100
-	scheduler = tornado.ioloop.PeriodicCallback(checkQueue, scheduler_interval, io_loop = mainLoop)
-	scheduler.start()
-	mainLoop.start()
+        mainLoop = tornado.ioloop.IOLoop.instance()
+        ## adjust the scheduler_interval according to the frames sent by the serial port
+        scheduler_interval = 1
+        scheduler = tornado.ioloop.PeriodicCallback(checkQueue, scheduler_interval, io_loop = mainLoop)
+        scheduler.start()
+        mainLoop.start()
+    except KeyboardInterrupt:
+        print "Keyboard Interrupt Detected: Stopping services..."
+        mainLoop.stop()

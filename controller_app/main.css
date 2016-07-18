@@ -55,15 +55,6 @@ body {
 
     }
 
-#main_content {
-    position: relative;
-    left: 50%;
-    top: 70px;
-    transform: translate(-50%, 0%);
-    width: 1280px;
-    padding-bottom: 120px;
-}
-
 #webcam_container {
     position: relative;
     outline: 0}

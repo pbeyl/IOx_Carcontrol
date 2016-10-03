@@ -44,6 +44,15 @@ body {
     font-size: 18px;
     line-height: 20px;
     }
+    
+#heading_user {
+    padding: 15px 15px;
+    padding-top: 19px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    font-size: 12px;
+    }
 
 #header_content {
     min-width: 992px;
@@ -110,6 +119,11 @@ body {
     width: 100%;
     }
 
+#emphasize {
+    color: #FF0000;
+    font-size: 12px
+}
+
 .button {
     padding: 0 1.825rem;
     padding-top: 0px;
@@ -159,6 +173,16 @@ body {
     position: relative;
     width: 128px;
     border-radius: 3px;}
+
+a:link, a:visited {
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+}
+
+a:hover, a:active {
+    color: rgba(0,0,0,.5);
+}
 
 .custom {
     height: 45px;

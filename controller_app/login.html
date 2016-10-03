@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link href="static/main.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="static/main.js"></script>
+  </head>
+  <body>
+  <div id="overlay">
+  
+  <div id="header">
+    <div id="header_content">
+        <img src="static/Cisco_Logo.png" id="logo">
+        <div id="heading">
+            Cisco Car Controller
+        </div>
+    </div>
+  </div>
+  
+  <div id="main_content">
+  <div id="webcam_container">
+  
+  <br>
+  <br>
+  <form action="/login" method="POST">
+    
+    <p>Username: <input type="text" name="username" /><p>
+     <p>Password: <input type="password" name="password" /><p>
+    <p><input type="submit" value="Log In" /></p>
+    {% module xsrf_form_html() %}
+
+	<div id="emphasize"><p>{{ cmd_msg }}</p></div>
+
+  </form>
+  <br>
+  
+  </div>
+  </div>
+  
+        <div id="footer">
+            <hr>    
+                <small><center>Version 1.0. ©2016 Cisco and/or its affiliates. All rights reserved. Cisco Confidential.
+            </center></small>
+            
+        </div>
+        
+    </div>  
+          
+  </body>
+</html>
+

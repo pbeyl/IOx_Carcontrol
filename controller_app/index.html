@@ -24,6 +24,9 @@
         <div id="heading">
             Cisco Car Controller
         </div>
+        <div id="heading_user" class="pull-right">
+            User: {{ username }} (<a href="/logout">Logout</a>)
+        </div>
     </div>
   </div>
   
@@ -49,7 +52,7 @@ src="rtsp://192.168.1.64:554/Streaming/Channels/1/?transportmode=unicast"> -->
 <img src="https://192.168.0.100/StreamingSetting?action=getPicture&userName=admin&password=Trusts3c!&t=1" style="width:100%" onload='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()},200)' onerror='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()}, 200)' alt='Cisco Car Cam' />
 -->
 
-	<EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="{{ cam_width }}" height="{{ cam_height }}" target="rtsp://{{ cam_user }}:{{ cam_pass }}@{{ cam_ip }}:{{ cam_port }}/livestream1"></EMBED>
+	<EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="{{ cam_width }}" height="{{ cam_height }}" target="rtsp://{{ cam_user }}:{{ cam_pass }}@{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&ChannelID=1&ChannelName=Channel1"></EMBED>
 	
         <div class="keycontrol_overlay hidden">
         

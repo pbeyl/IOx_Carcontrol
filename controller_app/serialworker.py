@@ -37,7 +37,7 @@ class SerialProcess(multiprocessing.Process):
                 self.sp.bytesize = serial.EIGHTBITS #number of bits per bytes
                 self.sp.parity = serial.PARITY_NONE #set parity check: no parity
                 self.sp.stopbits = serial.STOPBITS_ONE #number of stop bits
-                self.sp.timeout = 0.4
+                self.sp.timeout = 0.05
                 
                 break
             except Exception as e:
@@ -69,7 +69,7 @@ class SerialProcess(multiprocessing.Process):
  
         while True:
             try:
-                time.sleep(0.1)
+                time.sleep(0.01)
                 # look for incoming tornado request
                 if not self.input_queue.empty():
                     data = self.input_queue.get()

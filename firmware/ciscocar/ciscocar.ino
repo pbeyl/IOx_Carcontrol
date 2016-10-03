@@ -13,7 +13,8 @@ char currCommand;
 unsigned long start=0;
 unsigned long rltimer=0;
 //unsigned long elapsed;
-unsigned int def_delay = 300;
+unsigned int def_delay = 150;
+unsigned int def_delay_fb = 500;
 
 uint8_t i = 0;
 int fwd = 8;
@@ -57,7 +58,7 @@ void loop() {
 
   //elapsed = (millis() - start);
   //Serial.println(elapsed);
-  if ((millis() - start) > def_delay) {
+  if ((millis() - start) > def_delay_fb) {
     
     switch (currCommand) {
       case 'a':

@@ -3,8 +3,9 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-#import tornado.gen
+import tornado.gen
 from tornado.options import define, options
+import requests
 import os
 import time
 import datetime
@@ -13,6 +14,8 @@ import serialworker
 import json
 import signal
 import logging
+import hashlib
+import re
 from logging.handlers import RotatingFileHandler
 
 
@@ -28,7 +31,7 @@ CONFIG_FILE = os.getenv("CAF_APP_CONFIG_FILE", tcfg)
 
 define("port", default=8080, help="run on the given port", type=int)
 
-clients = [] 
+clients = []
 
 input_queue = multiprocessing.Queue()
 output_queue = multiprocessing.Queue()
@@ -90,7 +93,6 @@ def handle_signal(signum, stack):
 signal.signal(signal.SIGTERM, handle_signal)
 signal.signal(signal.SIGINT, handle_signal)
 
-
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         return self.get_secure_cookie("user")
@@ -98,13 +100,13 @@ class BaseHandler(tornado.web.RequestHandler):
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_user=cfg.get("ipcam", "user"), cam_pass=cfg.get("ipcam", "pass"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"))
+        self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin=cfg.get("ipcam", "plugin"), session_id=getSessionID())
 
 class StaticFileHandler(BaseHandler):
-    def get(self):
-        self.render(os.path.join(BASEDIR, 'main.js'))
-        self.render(os.path.join(BASEDIR, 'main.css'))
-        self.render(os.path.join(BASEDIR, 'Cisco_Logo.png'))
+	def get(self):
+		self.render(os.path.join(BASEDIR, 'main.js'))
+		self.render(os.path.join(BASEDIR, 'main.css'))
+		self.render(os.path.join(BASEDIR, 'Cisco_Logo.png'))
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     @tornado.web.authenticated
@@ -112,21 +114,20 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         logger.info("new connection")
         clients.append(self)
         self.write_message("socket connected")
-        
+ 
     @tornado.web.authenticated
     def on_message(self, message):
         logger.info("tornado received from client: %s" % json.dumps(message))
         #self.write_message('ack')
         input_queue.put(message)
-        
+ 
     @tornado.web.authenticated
     def on_close(self):
         logger.info("connection closed")
         clients.remove(self)
         self.write_message("socket disconnect")
-        
-class LoginHandler(BaseHandler):
 
+class LoginHandler(BaseHandler):
     @tornado.gen.coroutine
     def get(self):
         incorrect = self.get_secure_cookie("incorrect")
@@ -145,9 +146,12 @@ class LoginHandler(BaseHandler):
         
         getusername = tornado.escape.xhtml_escape(self.get_argument("username"))
         getpassword = tornado.escape.xhtml_escape(self.get_argument("password"))
-        if cfg.get("server", "user") == getusername and cfg.get("server", "pass") == getpassword:
+        SHA256_hash = hashlib.sha256(getpassword.encode())
+
+        if cfg.get("server", "user") == getusername and cfg.get("server", "pass") == SHA256_hash.hexdigest():
             self.set_secure_cookie("user", self.get_argument("username"))
             self.set_secure_cookie("incorrect", "0", expires=expires)
+                
             self.redirect(self.reverse_url("main"))
         else:
             incorrect = self.get_secure_cookie("incorrect") or 0
@@ -157,7 +161,7 @@ class LoginHandler(BaseHandler):
             #                Something Wrong With Your Data (%s)<br />
             #                <a href="/">Go Home</a>
             #              </center>""" % increased)
-            self.render((os.path.join(BASEDIR, 'login.html')), cmd_msg="Incorrect credentials")
+            self.render((os.path.join(BASEDIR, 'login.html')), cmd_msg="Invalid credentials")
                           
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -184,6 +188,7 @@ class Application(tornado.web.Application):
             tornado.web.url(r"/ws", WebSocketHandler),
         ], **settings)
 
+## check the queue for pending messages, and rely that to all connected clients
 
 def checkQueue():
 	if not output_queue.empty():
@@ -191,11 +196,30 @@ def checkQueue():
 		for c in clients:
 			c.write_message(message)
 
+def getSessionID():
+    url = "https://%s/login.cs" % cfg.get("ipcam", "ip")
+    payload = {'version': '1.0', 'action': 'login', 'userName': cfg.get("ipcam", "user"), 'password': cfg.get("ipcam", "pass"), 'sesionTemp': ''}
+    try:    
+        with requests.session() as s:
+            # fetch the login page
+            s.get(url, verify=False, timeout=1) #timeout if unsuccessful in 1 sec
+
+            # post to the login form
+            r = s.post(url, data=payload)
+            searchObj = re.search(r'(sessionID=)(\d{8})', r.content)
+            sessionid = searchObj.group(2)
+            #print(searchObj.group(2))
+        return sessionid
+    except Exception as ex:
+        logger.exception("Could not authenticate against ip cam, timeout")
+        return 0
+
 if __name__ == '__main__':
     setup_logging()
     
     # Log env variables
     dump_caf_env()
+    
     
     def terminate_self(mainLoop):
         logger.info("Stopping carcontrol services")
@@ -214,6 +238,15 @@ if __name__ == '__main__':
         
         tornado.options.parse_command_line()
         Application().listen(options.port)
+        app = tornado.web.Application(
+            handlers=[
+                (r"/", IndexHandler),
+                (r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=BASEDIR)),
+                (r"/ws", WebSocketHandler)
+            ]
+        )
+        
+        httpServer = tornado.httpserver.HTTPServer(app)
         logger.info("Listening on port: %s" % options.port)
 
         mainLoop = tornado.ioloop.IOLoop.instance()

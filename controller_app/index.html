@@ -33,26 +33,38 @@
   <div id="main_content">
   
   <div id="webcam_container" tabindex="0"">
-              <!-- Embed MJPEG stream
-          <img src="http://192.168.1.64/Streaming/channels/2/httppreview" style="width:100%"> -->
-          
-          <!-- Embed rtsp using quicktime plugin
-          <embed autoplay="true" controller="false" type="video/quicktime"
-src="rtsp://192.168.1.64:554/Streaming/Channels/1/?transportmode=unicast"> -->
-          
-          
-          <!-- Embed jpg image using javascript refresh
-          <img src="http://admin:pass4admin@192.168.1.64/Streaming/Channels/2/picture?t=1" style="width:100%" onload='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()},300)' onerror='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()}, 300)' alt='Cisco Car Cam' />
-          -->
-          
-        <!-- <img src="http://212.170.22.153:8080/jpg/image.jpg?time=1468170130927&amp;dummy=image.jpg" id="webcam_image">        
-       -->
-
-<!--
-<img src="https://192.168.0.100/StreamingSetting?action=getPicture&userName=admin&password=Trusts3c!&t=1" style="width:100%" onload='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()},200)' onerror='setTimeout(function() {src = src.substring(0, (src.lastIndexOf("t=")+2))+(new Date()).getTime()}, 200)' alt='Cisco Car Cam' />
--->
-
-	<EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="{{ cam_width }}" height="{{ cam_height }}" target="rtsp://{{ cam_user }}:{{ cam_pass }}@{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&ChannelID=1&ChannelName=Channel1"></EMBED>
+    {% if plugin == "QT" %}
+        <OBJECT 
+           CLASSID="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" 
+           WIDTH="{{ cam_width }}"
+           HEIGHT="{{ cam_height }}" 
+           CODEBASE="http://www.apple.com/qtactivex/qtplugin.cab">
+           <PARAM name="SRC"        VALUE = "" >
+           <PARAM name="QTSRC"      VALUE = "rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1" >
+           <PARAM name="HREF"       VALUE = "rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1"        >
+           <PARAM name="AUTOPLAY"   VALUE = "true"               >
+           <PARAM name="CONTROLLER" VALUE = "false"              >
+           <PARAM name="TYPE"       VALUE = "video/quicktime"    >
+           <PARAM name="TARGET"     VALUE = "myself"             >
+           <EMBED 
+                SRC        = "static/sample.mov" 
+                QTSRC      = "rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1"
+                HREF       = "rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1" 
+                TARGET     = "myself"
+                CONTROLLER = "false"
+                WIDTH      = "{{ cam_width }}" 
+                HEIGHT     = "{{ cam_height }}" 
+                LOOP       = "false" 
+                AUTOPLAY   = "true" 
+                PLUGIN     = "quicktimeplugin" 
+                TYPE       = "video/quicktime" 
+                CACHE      = "false" 
+                PLUGINSPAGE= "http://www.apple.com/quicktime/download/" >
+           </EMBED>
+        </OBJECT>
+    {% else %}
+        <EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="{{ cam_width }}" height="{{ cam_height }}" target="rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1"></EMBED>
+    {% end %}
 	
         <div class="keycontrol_overlay hidden">
         
@@ -102,7 +114,7 @@ src="rtsp://192.168.1.64:554/Streaming/Channels/1/?transportmode=unicast"> -->
 
         <div id="footer">
             <hr>    
-                <small><center>Version 1.0. ©2016 Cisco and/or its affiliates. All rights reserved. Cisco Confidential.
+                <small><center>Version 1.0. ©2016 Paul Beyleveld. All rights reserved.
             </center></small>
             
         </div>

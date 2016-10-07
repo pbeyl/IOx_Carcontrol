@@ -100,28 +100,52 @@ class BaseHandler(tornado.web.RequestHandler):
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin=cfg.get("ipcam", "plugin"), session_id=getSessionID())
+        try:
+            sid
+        except NameError:
+            logger.info("obtaining ip cam session id")
+            sid = getSessionID()
+            if sid != 0:
+                self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin=cfg.get("ipcam", "plugin"), session_id=sid)
+            else:
+                logger.warn("attempting to obtain session id from ip cam")
+                self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin="NA", session_id=sid)
+        else:
+            if sid != 0:
+                self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin=cfg.get("ipcam", "plugin"), session_id=sid)
+            else:
+                logger.warn("attempting to obtain session id from ip cam")
+                sid = getSessionID()
+                if sid != 0:
+                    self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin=cfg.get("ipcam", "plugin"), session_id=sid)
+                else:
+                    logger.warn("failed to obtain session id from ip cam")
+                    self.render((os.path.join(BASEDIR, 'index.html')), cam_ip=cfg.get("ipcam", "ip"), cam_port=cfg.get("ipcam", "port"), cam_width=cfg.get("ipcam", "width"), cam_height=cfg.get("ipcam", "height"), username=cfg.get("server", "user"), plugin="NA", session_id=sid)
 
 class StaticFileHandler(BaseHandler):
-	def get(self):
-		self.render(os.path.join(BASEDIR, 'main.js'))
-		self.render(os.path.join(BASEDIR, 'main.css'))
-		self.render(os.path.join(BASEDIR, 'Cisco_Logo.png'))
+    def get(self):
+        self.render(os.path.join(BASEDIR, 'main.js'))
+        self.render(os.path.join(BASEDIR, 'main.css'))
+        self.render(os.path.join(BASEDIR, 'Cisco_Logo.png'))
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
-    @tornado.web.authenticated
+    #@tornado.web.authenticated
+    def check_origin(self, origin):
+        return True
+    
+    #@tornado.web.authenticated
     def open(self):
         logger.info("new connection")
         clients.append(self)
         self.write_message("socket connected")
  
-    @tornado.web.authenticated
+    #@tornado.web.authenticated
     def on_message(self, message):
-        logger.info("tornado received from client: %s" % json.dumps(message))
+        logger.debug("tornado received from client: %s" % json.dumps(message))
         #self.write_message('ack')
         input_queue.put(message)
  
-    @tornado.web.authenticated
+    #@tornado.web.authenticated
     def on_close(self):
         logger.info("connection closed")
         clients.remove(self)
@@ -191,10 +215,10 @@ class Application(tornado.web.Application):
 ## check the queue for pending messages, and rely that to all connected clients
 
 def checkQueue():
-	if not output_queue.empty():
-		message = output_queue.get()
-		for c in clients:
-			c.write_message(message)
+    if not output_queue.empty():
+        message = output_queue.get()
+        for c in clients:
+            c.write_message(message)
 
 def getSessionID():
     url = "https://%s/login.cs" % cfg.get("ipcam", "ip")
@@ -211,7 +235,7 @@ def getSessionID():
             #print(searchObj.group(2))
         return sessionid
     except Exception as ex:
-        logger.exception("Could not authenticate against ip cam, timeout")
+        logger.exception("IP Cam connection failure")
         return 0
 
 if __name__ == '__main__':

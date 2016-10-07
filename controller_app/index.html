@@ -62,8 +62,10 @@
                 PLUGINSPAGE= "http://www.apple.com/quicktime/download/" >
            </EMBED>
         </OBJECT>
-    {% else %}
+    {% elif plugin == "VLC" %}
         <EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="{{ cam_width }}" height="{{ cam_height }}" target="rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1"></EMBED>
+    {% else %}
+        <div id="webcam_replace"> Could not connect to IP Camera </div>
     {% end %}
 	
         <div class="keycontrol_overlay hidden">
@@ -102,7 +104,7 @@
   <p><b>Serial Console Monitor: (click to unhide)</b></p>
       <div id="received"> <!-- we will hide this until clicked-->
       </div>
-      <div> <button id="clear">Clear</button> </div>
+      <div> <button id="clear">Clear</button> <button id="reconnect">Reconnect</button> </div>
   </div>
     </div>
   </div>

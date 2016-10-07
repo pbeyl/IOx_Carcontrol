@@ -2,23 +2,45 @@ $(document).ready(function(){
 
 var received = $('#received');
 
+var socket;
 
-var socket = new WebSocket("ws://" + window.location.hostname + ":8080/ws");
- 
-socket.onopen = function(){  
-  console.log("connected"); 
-}; 
+//open websocket
+openSocket();
 
-socket.onmessage = function (message) {
-  console.log("receiving: " + message.data);
-  received.append("RECV: " + message.data);
-  received.append($('<br/>'));
-  received.scrollTop(received[0].scrollHeight);
-};
+function openSocket(){
+    // Ensures only one connection is open at a time
+    if(socket !== undefined && socket.readyState !== socket.CLOSED){
+        console.log("WebSocket is already opened.");
+        received.append("socket connected");
+        received.append($('<br/>'));
+        return;
+    }
 
-socket.onclose = function(){
-  console.log("disconnected"); 
-};
+    // Create a new instance of the websocket
+    socket = new WebSocket("ws://" + window.location.hostname + ":8080/ws");
+
+    /**
+    * Binds functions to the listeners for the websocket.
+    */ 
+    socket.onopen = function(){  
+      console.log("connected"); 
+    }; 
+
+    socket.onerror = function (error) {
+      console.log('error: ' + error);
+    };
+
+    socket.onmessage = function (message) {
+      console.log("receiving: " + message.data);
+      received.append("RECV: " + message.data);
+      received.append($('<br/>'));
+      received.scrollTop(received[0].scrollHeight);
+    };
+
+    socket.onclose = function(){
+      console.log("disconnected"); 
+    };
+}
 
 var sendMessage = function(message) {
   console.log("sending:" + message.data);
@@ -28,6 +50,7 @@ var sendMessage = function(message) {
 // GUI Stuff
 
 $(document).keypress(function(e) {
+
         //function to receive control from keyboard keys
         KeyCheck();
         function KeyCheck()
@@ -118,10 +141,6 @@ $("#cmd_send").click(function(ev){
   $('#cmd_value').val("");
 });
 
-$('#clear').click(function(){
-  received.empty();
-});
-
 $('.console_output').addClass("hidden");
 
 $('.console_output').click(function() {
@@ -135,7 +154,12 @@ $('.console_output').click(function() {
     }
 });        
 
-
+$('#clear').click(function(){
+  received.empty();
+});
+$('#reconnect').click(function(){
+  openSocket();
+});
 
 });
 

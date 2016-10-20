@@ -125,6 +125,7 @@ class IndexHandler(BaseHandler):
 class StaticFileHandler(BaseHandler):
     def get(self):
         self.render(os.path.join(BASEDIR, 'main.js'))
+        self.render(os.path.join(BASEDIR, 'jquery.min.js'))
         self.render(os.path.join(BASEDIR, 'main.css'))
         self.render(os.path.join(BASEDIR, 'Cisco_Logo.png'))
  

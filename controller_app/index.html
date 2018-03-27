@@ -64,10 +64,13 @@
         </OBJECT>
     {% elif plugin == "VLC" %}
         <EMBED TYPE="application/x-vlc-plugin" name="stream1" autoplay="yes" loop="no" controls="no" allowfullscreen="no" width="{{ cam_width }}" height="{{ cam_height }}" target="rtsp://{{ cam_ip }}:{{ cam_port }}/StreamingSetting?version=1.0&action=getRTSPStream&sessionID={{ session_id }}&ChannelID=1&ChannelName=Channel1"></EMBED>
+    {% elif plugin == "HTTP" %}
+        <div id="webcam_mjpeg" style="width: {{ cam_width }}; height: {{ cam_height }}"> <img id="streamImage" style="width: {{ cam_width }}; height: {{ cam_height }}" alt="Opening MJPEG stream from http://{{ cam_ip }}:{{ cam_port }}..." src="http://{{ cam_ip }}:{{ cam_port }}"></img> </div>
     {% else %}
         <div id="webcam_replace"> Could not connect to IP Camera </div>
     {% end %}
 	
+	<!-- 
         <div class="keycontrol_overlay hidden">
         
                 <div class="keycontrol_overlay_column">
@@ -75,11 +78,13 @@
                     <kbd>↑</kbd> / <kbd>↓</kbd>: forward / backward
                 </div>
         </div>
+        -->
+        
         <!-- Creating press buttons on the webpage-->
           <div class="col-md-8 overlay-sm">
              <p>                       
-              <input id="bleft" class="button custom lft" type="button" value="Steer Left" " />
-              <input id="bright" class="button custom rgt" type="button" value="Steer Right" " />
+              <input id="bleft" class="button custom" type="button" value="Steer Left" " />
+              <input id="bright" class="button custom" type="button" value="Steer Right" " />
                                              
               
             </p>
@@ -87,9 +92,9 @@
           
           <div class="col-md-2 overlay-bg pull-right">
            <p>              
-              <input id="bforward" class="button custom fwd" type="button" value="Accelerate" " />
+              <input id="bforward" class="button custom" type="button" value="Accelerate" " />
             <br>          
-              <input id="bback" class="button custom bck" type="button" value="Reverse" " />
+              <input id="bback" class="button custom" type="button" value="Reverse" " />
             </p>
           </div>
 

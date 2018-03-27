@@ -1,9 +1,13 @@
+/* 
+ *  This is a simple sketch to activate relays based on commands recieved via serial.
+ */
+
 #include <Arduino.h>
 #include "SoftwareSerial.h"
-//#include <WString.h>
+
 
 #define maxLength 6
-//uint8_t OUTPUT
+
 
 char command[maxLength];
 bool commandComplete = false;

@@ -9,9 +9,9 @@ Components used in the project
 > Some 12V batteries ;-)
 
 -- controller_app   (IOx app source)
--- electronics      (customer electronics scematics)
+-- electronics      (custom electronics schematics)
     |
-    --Enclosure     (enclosure .stl for 3D printing
+    --Enclosure     (enclosure .stl for 3D printing)
 -- firmware         (arduino sketch)
 -- overview         (project overview)
 
